@@ -178,7 +178,7 @@ const AramaTakip = () => {
                     justifyContent: 'center',
                 }}
             >
-                Arama Takip Sistemi ©2024
+                Arama Takip Sistemi ©2025
             </div>
         </Layout>
     );

@@ -6,8 +6,11 @@ import tr from 'antd/lib/locale/tr_TR';
 import dayjs from 'dayjs';
 import 'dayjs/locale/tr';
 
-const InputPanel = ({ nameOptions, backendUrl, onSave }) => {
+const InputPanel = ({ nameOptions, backendUrl, onSave, themeMode }) => {
     const [form] = Form.useForm();
+    const boxColor = themeMode === 'light' ? '#ffffff' : '#141414';
+    const textColor = themeMode === 'light' ? '#1f1f1f' : '#d9d9d9';
+    const borderColor = themeMode === 'light' ? '#d9d9d9' : '#424242';
 
     const onNameSelect = (value) => {
         const selectedUser = nameOptions.find((user) => user.value === value);
@@ -67,7 +70,7 @@ const InputPanel = ({ nameOptions, backendUrl, onSave }) => {
                         { pattern: /^\(05\d{2}\) \d{3} \d{2} \d{2}$/, message: 'Geçersiz telefon numarası biçimi.' },
                     ]}
                 >
-                    <MaskedInput mask="({\05}00) 000 00 00" placeholder="(05XX) XXX XX XX" />
+                    <MaskedInput mask="({\05}00) 000 00 00" placeholder="(05XX) XXX XX XX" style={{ background: boxColor, color: textColor, borderColor: borderColor }} />
                 </Form.Item>
                 <Form.Item
                     name="callDateTime"

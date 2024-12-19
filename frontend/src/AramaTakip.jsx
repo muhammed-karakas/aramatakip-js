@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import { Layout, message, Spin, Typography } from 'antd';
+import { Button, ConfigProvider, Layout, message, Spin, theme, Typography } from 'antd';
+import { MoonOutlined, SunOutlined } from '@ant-design/icons';
 import DisplayPanel from './components/DisplayPanel';
 import InputPanel from './components/InputPanel';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const AramaTakip = () => {
-    const [headerFooterHeight, setHeaderFooterHeight] = useState(Math.max(window.innerHeight * 0.1, 30));
+    const [headerFooterHeight, setHeaderFooterHeight] = useState(Math.max(window.innerHeight * 0.08, 30));
     const [nameOptions, setNameOptions] = useState([]);
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -15,11 +16,11 @@ const AramaTakip = () => {
     const [name, setName] = useState('');
     const [dateRange, setDateRange] = useState([]);
     const [pageSize, setPageSize] = useState(10);
-
+    const [themeMode, setThemeMode] = useState(localStorage.getItem('theme') || 'light');
     const panelRef = useRef(null);
 
     const updateHeights = () => {
-        setHeaderFooterHeight(Math.max(window.innerHeight * 0.1, 30));
+        setHeaderFooterHeight(Math.max(window.innerHeight * 0.08, 30));
     };
 
     const calculatePageSize = () => {
@@ -121,66 +122,84 @@ const AramaTakip = () => {
         fetchData();
     };
 
+    useEffect(() => {
+        document.body.style.background = themeMode === 'light' ? '#fbfbfb' : '#181818';
+        document.body.style.transition = 'background 0.2s';
+    }, [themeMode]);
+
+    const toggleTheme = () => {
+        const newTheme = themeMode === 'light' ? 'dark' : 'light';
+        setThemeMode(newTheme);
+        localStorage.setItem('theme', newTheme);
+    };
+
     return (
-        <Layout style={{ height: '100vh', overflow: 'hidden' }}>
-            <div
-                style={{
-                    backgroundColor: '#005',
-                    color: 'white',
-                    height: headerFooterHeight,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <Typography.Title level={3} style={{ color: 'white', margin: 0 }}>
-                    Arama Takip Sistemi
-                </Typography.Title>
-            </div>
-            <Layout.Content
-                ref={panelRef}
-                style={{
-                    flexGrow: 1,
-                    overflow: 'auto',
-                    height: `calc(100vh - ${headerFooterHeight * 2}px)`,
-                }}
-            >
-                <div style={{ display: 'flex', height: '100%' }}>
-                    <div style={{ width: '30%' }}>
-                        <InputPanel
-                            nameOptions={nameOptions}
-                            backendUrl={BACKEND_URL}
-                            onSave={handleSave}
-                        />
+        <ConfigProvider theme={{ algorithm: themeMode === 'light' ? theme.defaultAlgorithm : theme.darkAlgorithm }}>
+            <Layout style={{ height: '100vh', overflow: 'hidden' }}>
+                <div
+                    style={{
+                        backgroundColor: '#005',
+                        color: 'white',
+                        height: headerFooterHeight,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '0 32px',
+                    }}
+                >
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                        <Typography.Title level={3} style={{ color: 'white', margin: 0 }}>
+                            Arama Takip Sistemi
+                        </Typography.Title>
                     </div>
-                    <div style={{ flexGrow: 1 }}>
-                        <Spin spinning={loading}>
-                            <DisplayPanel
-                                nameOptions={nameOptions.map(user => ({ value: user.value }))}
-                                data={data}
-                                backendUrl={BACKEND_URL}
-                                filterType={filterType}
-                                onFilterChange={handleFilterChange}
-                                pageSize={pageSize}
-                                onPageSizeChange={handlePageSizeChange}
-                            />
-                        </Spin>
-                    </div>
+                    <Button icon={themeMode === 'light' ? <MoonOutlined /> : <SunOutlined />} onClick={toggleTheme} />
                 </div>
-            </Layout.Content>
-            <div
-                style={{
-                    backgroundColor: '#005',
-                    color: 'white',
-                    height: headerFooterHeight,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                Arama Takip Sistemi ©2025
-            </div>
-        </Layout>
+                <Layout.Content
+                    ref={panelRef}
+                    style={{
+                        flexGrow: 1,
+                        overflow: 'auto',
+                        height: `calc(100vh - ${headerFooterHeight * 2}px)`,
+                    }}
+                >
+                    <div style={{ display: 'flex', height: '100%' }}>
+                        <div style={{ width: '30%' }}>
+                            <InputPanel
+                                nameOptions={nameOptions}
+                                backendUrl={BACKEND_URL}
+                                onSave={handleSave}
+                                themeMode={themeMode}
+                            />
+                        </div>
+                        <div style={{ flexGrow: 1 }}>
+                            <Spin spinning={loading}>
+                                <DisplayPanel
+                                    nameOptions={nameOptions.map(user => ({ value: user.value }))}
+                                    data={data}
+                                    backendUrl={BACKEND_URL}
+                                    filterType={filterType}
+                                    onFilterChange={handleFilterChange}
+                                    pageSize={pageSize}
+                                    onPageSizeChange={handlePageSizeChange}
+                                />
+                            </Spin>
+                        </div>
+                    </div>
+                </Layout.Content>
+                <div
+                    style={{
+                        backgroundColor: '#005',
+                        color: 'white',
+                        height: headerFooterHeight,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    Arama Takip Sistemi ©2025
+                </div>
+            </Layout>
+        </ConfigProvider>
     );
 };
 
